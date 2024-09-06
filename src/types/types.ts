@@ -6,6 +6,7 @@ export type Comment = {
   content: string;
   creator: string;
   createdAt: Timestamp;
+  isAnswer: boolean;
 };
 
 export type ThreadCategory = "THREAD" | "QNA";
@@ -25,4 +26,11 @@ export type User = {
   userName: string;
   password: string;
   userUID: string;
+  isModerator: boolean;
+};
+
+export type QNAThread = Thread & {
+  category: "QNA";
+  isAnswered: boolean;
+  commentAnswerId?: number;
 };
