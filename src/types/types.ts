@@ -11,6 +11,11 @@ export type Comment = {
 
 export type ThreadCategory = "THREAD" | "QNA";
 
+export type ThreadTag = {
+  id: number;
+  name: string;
+};
+
 export type Thread = {
   id: string;
   title: string;
@@ -18,6 +23,7 @@ export type Thread = {
   creationDate: string;
   description: string;
   creator: string; // UID of the creator
+  tags: ThreadTag[];
 };
 
 export type User = {

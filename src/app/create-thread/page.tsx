@@ -32,6 +32,7 @@ function CreateThreadPage() {
       title,
       description,
       category,
+      tags: [category],
       creator,
       creationDate: new Date().toISOString(),
     };
@@ -41,6 +42,7 @@ function CreateThreadPage() {
       setTitle("");
       setDescription("");
       setCategory("");
+      router.push("/");
     } catch (error) {
       console.error("Error writing document: ", error);
     }

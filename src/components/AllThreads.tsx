@@ -1,10 +1,8 @@
-import { db } from '@/firebase';
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import { Thread, User } from '@/types/types';
-
-type ThreadCategory = "THREAD" | "QNA";
+import { db } from "@/firebase";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { Thread, User } from "@/types/types";
 
 function AllThreadsPage() {
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -31,7 +29,9 @@ function AllThreadsPage() {
       setThreads(threadsData);
 
       // Fetch user details for each thread creator
-      const userPromises = threadsData.map(thread => getDoc(doc(db, 'users', thread.creator)));
+      const userPromises = threadsData.map((thread) =>
+        getDoc(doc(db, "users", thread.creator))
+      );
       const userDocs = await Promise.all(userPromises);
       const usersData = userDocs.reduce((acc, userDoc) => {
         if (userDoc.exists()) {
@@ -51,11 +51,8 @@ function AllThreadsPage() {
       {threads.length > 0 ? (
         <ul>
           {threads.map((thread) => (
-            <li
-              key={thread.id}
-              className=""
-            >
-              <Link href={`/threads/${thread.id}`} className='block'>
+            <li key={thread.id} className="">
+              <Link href={`/threads/${thread.id}`} className="block">
                 <div className="bg-white shadow-md rounded-lg p-6 mb-6 hover:opacity-65">
                   <div className="flex">
                     <h2 className="font-semibold flex-1 dark:text-black text-lg">
