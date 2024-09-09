@@ -14,12 +14,15 @@ import {
   serverTimestamp,
   Timestamp,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Header from "@/components/layout/Header";
 import { Thread, User, Comment } from "@/types/types";
 import { canEditThread } from "@/utils/permissions";
 import { editThread } from "@/services/threadService";
+import { useRouter } from "next/navigation";
+import { FaCheck } from "react-icons/fa";
 
 const ThreadDetailPage: React.FC = () => {
   const pathname = usePathname();
@@ -31,13 +34,16 @@ const ThreadDetailPage: React.FC = () => {
   const [usernames, setUsernames] = useState<{ [key: string]: string }>({});
   const [currentUserUID, setCurrentUserUID] = useState<string | null>(null);
   const [currentUserName, setCurrentUserName] = useState<string>("");
-
+  const [error, setError] = useState("");
+  const [showMessage, setShowMessage] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState<string>(thread?.title || "");
   const [updatedDescription, setUpdatedDescription] = useState<string>(
     thread?.description || ""
   );
-
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+  const router = useRouter();
+  const [isModerator, setIsModerator] = useState<boolean>(false);
   useEffect(() => {
     const auth = getAuth();
     onAuthStateChanged(auth, async (user) => {
@@ -50,6 +56,7 @@ const ThreadDetailPage: React.FC = () => {
         if (userDoc.exists()) {
           const userData = userDoc.data() as User;
           setCurrentUserName(userData.userName);
+          setIsModerator(userData.isModerator);
         }
       } else {
         setIsLoggedIn(false);
@@ -183,7 +190,7 @@ const ThreadDetailPage: React.FC = () => {
     if (
       thread &&
       currentUserUID &&
-      (await canEditThread(thread, currentUserUID))
+      canEditThread(thread, currentUserUID, isModerator)
     ) {
       try {
         if (!thread.id) {
@@ -205,6 +212,56 @@ const ThreadDetailPage: React.FC = () => {
       } catch (error) {
         console.error("Error updating thread:", error);
       }
+    }
+  };
+
+  const handleDeleteThread = async (threadId: string) => {
+    try {
+      await deleteDoc(doc(db, "threads", threadId));
+      router.push("/");
+    } catch (error) {
+      console.error("Error deleting thread:", error);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    const comment = comments.find((comment) => comment.id === commentId);
+
+    if (comment && currentUserUID !== comment.creator && !isModerator) {
+      setCommentToDelete(commentId);
+      setShowMessage(true);
+    } else {
+      try {
+        await deleteDoc(doc(db, "comments", commentId));
+        setComments(comments.filter((comment) => comment.id !== commentId));
+        setShowMessage(false);
+      } catch (error) {
+        console.log("Error deleting comment:", error);
+      }
+    }
+  };
+
+  const handleMarkAsAnswer = async (commentId: string) => {
+    if (!thread || !currentUserUID) {
+      return;
+    }
+    if (thread.creator !== currentUserUID) {
+      setError("Only the thread creator can mark a comment as an answer.");
+      return;
+    }
+    try {
+      const commentRef = doc(db, "comments", commentId);
+      await updateDoc(commentRef, {
+        isAnswer: true,
+      });
+
+      setComments((prevCommentcs) =>
+        prevCommentcs.map((comment) =>
+          comment.id === commentId ? { ...comment, isAnswer: true } : comment
+        )
+      );
+    } catch (error) {
+      console.log("Error marking comment as answer:", error);
     }
   };
 
@@ -268,12 +325,21 @@ const ThreadDetailPage: React.FC = () => {
                 <p className="text-sm text-gray-500">
                   Category: {thread.category}
                 </p>
-                {currentUserUID && canEditThread(thread, currentUserUID) && (
+                {currentUserUID &&
+                  canEditThread(thread, currentUserUID, isModerator) && (
+                    <button
+                      onClick={handleEditClick}
+                      className="bg-blue-500 text-white p-2 px-4 rounded hover:opacity-65"
+                    >
+                      Edit Thread
+                    </button>
+                  )}
+                {isModerator && (
                   <button
-                    onClick={handleEditClick}
-                    className="bg-blue-500 text-white p-2 px-4 rounded hover:opacity-65"
+                    onClick={() => handleDeleteThread(thread.id)}
+                    className="bg-red-500 text-white p-2 px-4 rounded hover:opacity-65"
                   >
-                    Edit Thread
+                    Delete Thread
                   </button>
                 )}
               </div>
@@ -319,6 +385,38 @@ const ThreadDetailPage: React.FC = () => {
                 <p className="text-gray-500 text-xs">
                   {comment.createdAt.toDate().toLocaleString()}
                 </p>
+                {currentUserUID && (
+                  <div>
+                    <button
+                      onClick={() => handleDeleteComment(comment.id)}
+                      className="bg-red-500 text-white p-2 px-4 rounded hover:opacity-65"
+                    >
+                      Delete Comment
+                    </button>
+                    {showMessage && comment.id === commentToDelete && (
+                      <p className="text-red-500 text-xs">
+                        You can only delete your own comments.
+                      </p>
+                    )}
+                    {thread?.creator === currentUserUID &&
+                      !comment.isAnswer && (
+                        <button
+                          onClick={() => handleMarkAsAnswer(comment.id)}
+                          className="bg-green-500 text-white p-2 px-4 rounded ml-2 hover:opacity-65"
+                        >
+                          Mark as Answer
+                        </button>
+                      )}
+                    {comment.isAnswer && (
+                      <div className="flex text-green-500">
+                        <FaCheck
+                          style={{ color: "lightgreen", fontSize: "35px" }}
+                        />{" "}
+                        <p>Answered</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))
           ) : (
