@@ -63,7 +63,8 @@ function AllThreadsPage() {
   const filteredThreads = selectedTag
     ? threads.filter(
         (thread) =>
-          thread.tags.some((tag: ThreadTag) => tag.name === selectedTag) // Compare selectedTag with tag.name (a string)
+          thread.tags.some((tag: ThreadTag) => tag.toString() === selectedTag)
+        // Compare selectedTag with tag.name (a string)
       )
     : threads;
 
