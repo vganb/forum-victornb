@@ -24,6 +24,7 @@ export type Thread = {
   description: string;
   creator: string; // UID of the creator
   tags: ThreadTag[];
+  isLocked: boolean;
 };
 
 export type User = {

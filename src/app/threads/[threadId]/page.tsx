@@ -23,6 +23,8 @@ import { canEditThread } from "@/utils/permissions";
 import { editThread } from "@/services/threadService";
 import { useRouter } from "next/navigation";
 import { FaCheck } from "react-icons/fa";
+import { lockThread } from "@/services/threadService";
+import { Button } from "@/components/ui/button";
 
 const ThreadDetailPage: React.FC = () => {
   const pathname = usePathname();
@@ -41,6 +43,8 @@ const ThreadDetailPage: React.FC = () => {
   const [updatedDescription, setUpdatedDescription] = useState<string>(
     thread?.description || ""
   );
+
+  const [isLocked, setIsLocked] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
   const router = useRouter();
   const [isModerator, setIsModerator] = useState<boolean>(false);
@@ -251,23 +255,49 @@ const ThreadDetailPage: React.FC = () => {
     }
     try {
       const commentRef = doc(db, "comments", commentId);
-      await updateDoc(commentRef, {
-        isAnswer: true,
-      });
+      const commentSnap = await getDoc(commentRef);
+      if (commentSnap.exists()) {
+        const commentData = commentSnap.data();
+        // Toggle the isAnswer field
+        await updateDoc(commentRef, {
+          isAnswer: !commentData.isAnswer,
+        });
 
-      setComments((prevCommentcs) =>
-        prevCommentcs.map((comment) =>
-          comment.id === commentId ? { ...comment, isAnswer: true } : comment
-        )
-      );
+        setComments((prevComments) =>
+          prevComments.map((comment) =>
+            comment.id === commentId
+              ? { ...comment, isAnswer: !commentData.isAnswer }
+              : comment
+          )
+        );
+      }
     } catch (error) {
       console.log("Error marking comment as answer:", error);
+    }
+  };
+
+  const handleLockThread = async (threadId: string) => {
+    try {
+      const newLockStatus = !thread?.isLocked;
+      await lockThread(threadId, newLockStatus);
+      console.log("Thread lock status successfully updated!");
+
+      // Update the thread state
+      setThread((prevThread) => ({
+        ...prevThread!,
+        isLocked: newLockStatus,
+      }));
+    } catch (error) {
+      console.error("Error updating thread lock status: ", error);
     }
   };
 
   const sortedComments = comments.sort(
     (a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime()
   );
+  const newLockStatus = !thread?.isLocked;
+  console.log("New lock status:", newLockStatus);
+  console.log("Current thread isLocked:", thread?.isLocked);
 
   return (
     <div>
@@ -342,6 +372,11 @@ const ThreadDetailPage: React.FC = () => {
                     Delete Thread
                   </button>
                 )}
+                {isModerator && (
+                  <Button onClick={() => handleLockThread(thread.id)}>
+                    {thread?.isLocked ? "Unlock Thread" : "Lock Thread"}
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -350,22 +385,28 @@ const ThreadDetailPage: React.FC = () => {
         )}
         <div>
           <h2 className="text-xl font-bold mb-4">Comments</h2>
-          {isLoggedIn && (
-            <form onSubmit={handleCommentSubmit} className="my-4">
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded text-black bg-white"
-                placeholder="Add a comment..."
-                required
-              />
-              <button
-                type="submit"
-                className="mt-2 bg-blue-500 text-white p-2 px-4 rounded hover:opacity-65"
-              >
-                Submit
-              </button>
-            </form>
+          {thread?.isLocked ? (
+            <p className="text-lg text-red-500">
+              This thread is locked. You cannot add a comment.
+            </p>
+          ) : (
+            isLoggedIn && (
+              <form onSubmit={handleCommentSubmit} className="my-4">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded text-black bg-white"
+                  placeholder="Add a comment..."
+                  required
+                />
+                <button
+                  type="submit"
+                  className="mt-2 bg-blue-500 text-white p-2 px-4 rounded hover:opacity-65"
+                >
+                  Submit
+                </button>
+              </form>
+            )
           )}
           {sortedComments.length > 0 ? (
             sortedComments.map((comment) => (
@@ -419,9 +460,9 @@ const ThreadDetailPage: React.FC = () => {
                 )}
               </div>
             ))
-          ) : (
+          ) : !thread?.isLocked ? (
             <p>No comments yet.</p>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
