@@ -3,7 +3,9 @@ import React, { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
-import { auth, db } from "@/firebase"; // Ensure you have these exports in your firebase.js
+// import { auth, db } from "@/firebase"; // Ensure you have these exports in your firebase.js
+import { Button } from "../ui/button";
+import Image from "next/image";
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -19,7 +21,7 @@ function Header() {
           const db = getFirestore();
           const querySnapshot = await getDocs(collection(db, "threads"));
           querySnapshot.forEach((doc) => {
-            //   // console.log(`${doc.id} => ${doc.data()}`);
+            // console.log(`${doc.id} => ${doc.data()}`);
           });
         } catch (err) {
           console.error("Error accessing Firestore: ", err);
@@ -51,25 +53,35 @@ function Header() {
       </span>
       <ul className="flex flex-1 gap-4 py-3">
         <li>
-          <Link href="/">Home</Link>
+          <Button variant="ghost">
+            <Link href="/">Home</Link>
+          </Button>
         </li>
         <li>
-          <Link href="/threads">Threads</Link>
+          <Button variant="ghost">
+            <Link href="/threads">Threads</Link>
+          </Button>
         </li>
         {isLoggedIn ? (
           <>
             <li className="flex-1 text-right">
-              <button onClick={handleLogout}>Logout</button>
+              <Button variant="ghost" onClick={handleLogout}>
+                Logout
+              </Button>
             </li>
             {error && <li className="text-red-500">{error}</li>}
           </>
         ) : (
           <>
             <li className="flex-1 text-right">
-              <Link href="/login">Log in</Link>
+              <Button variant="ghost">
+                <Link href="/login">Log in</Link>
+              </Button>
             </li>
             <li className="text-right">
-              <Link href="/register">Register</Link>
+              <Button variant="ghost">
+                <Link href="/register">Register</Link>
+              </Button>
             </li>
           </>
         )}

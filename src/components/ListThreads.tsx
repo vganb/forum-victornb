@@ -12,6 +12,10 @@ import {
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
+import { Card, CardTitle, CardDescription } from "./ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+
 function ListThreads() {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [users, setUsers] = useState<{ [key: string]: User }>({});
@@ -54,21 +58,23 @@ function ListThreads() {
   return (
     <div>
       <h2 className="font-bold text-xl pb-3">Latest Threads</h2>
+      <Separator className="mb-10" />
+
       {threads.length > 0 ? (
         <ul>
           {threads.map((thread) => (
             <li key={thread.id}>
               <Link href={`/threads/${thread.id}`}>
-                <div className="bg-white shadow-md rounded-lg p-6 mb-6 hover:opacity-65">
+                <Card className="bg-white shadow-md rounded-lg p-6 mb-6 hover:opacity-65">
                   <div className="flex">
-                    <h2 className="font-semibold flex-1 dark:text-black text-lg">
+                    <CardTitle className="font-semibold flex-1 dark:text-black text-lg">
                       {thread.title}
-                    </h2>
-                    <span className="bg-gray-700 text-white px-2 py-1 text-sm rounded-md">
+                    </CardTitle>
+                    <Badge className="bg-gray-700 text-white px-2 py-1 text-sm rounded-md">
                       {thread.category}
-                    </span>
+                    </Badge>
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <CardDescription className="text-sm text-gray-500">
                     Posted by {users[thread.creator]?.userName || "Unknown"} at{" "}
                     {new Intl.DateTimeFormat("sv-SE", {
                       year: "numeric",
@@ -78,8 +84,8 @@ function ListThreads() {
                       minute: "2-digit",
                       second: "2-digit",
                     }).format(new Date(thread.creationDate))}
-                  </p>
-                </div>
+                  </CardDescription>
+                </Card>
               </Link>
             </li>
           ))}
