@@ -1,9 +1,13 @@
 "use client";
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { auth, db } from '@/firebase'; // Ensure you have configured Firebase
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { auth, db } from "@/firebase"; // Ensure you have configured Firebase
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import Header from "@/components/layout/Header";
 
 function RegisterPage() {
@@ -17,14 +21,19 @@ function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       // Store the username in Firestore
-      await setDoc(doc(db, 'users', user.uid), {
+      await setDoc(doc(db, "users", user.uid), {
         userName: username,
         email: user.email,
-        UserUID: user.uid
+        UserUID: user.uid,
+        isModerator: false,
       });
 
       setSuccess("User registered successfully!");
@@ -47,12 +56,13 @@ function RegisterPage() {
       const user = result.user;
 
       // Store the username in Firestore if it doesn't already exist
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userDoc = await getDoc(doc(db, "users", user.uid));
       if (!userDoc.exists()) {
-        await setDoc(doc(db, 'users', user.uid), {
-          userName: user.displayName || 'Anonymous',
+        await setDoc(doc(db, "users", user.uid), {
+          userName: user.displayName || "Anonymous",
           email: user.email,
-          UserUID: user.uid
+          UserUID: user.uid,
+          isModerator: false,
         });
       }
 

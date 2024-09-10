@@ -18,9 +18,9 @@ function Header() {
         try {
           const db = getFirestore();
           const querySnapshot = await getDocs(collection(db, "threads"));
-          // querySnapshot.forEach((doc) => {
-          //   // console.log(`${doc.id} => ${doc.data()}`);
-          // });
+          querySnapshot.forEach((doc) => {
+            //   // console.log(`${doc.id} => ${doc.data()}`);
+          });
         } catch (err) {
           console.error("Error accessing Firestore: ", err);
           setError("Failed to access Firestore");

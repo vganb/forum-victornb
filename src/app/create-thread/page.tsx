@@ -53,9 +53,7 @@ function CreateThreadPage() {
       <Header />
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Create a New Thread</h1>
-        {/* {!creator && (
-          <p className="text-red-500 mb-4">You need to log in to create a New Thread</p>
-        )} */}
+
         {creator ? (
           <form
             onSubmit={handleSubmit}
@@ -70,6 +68,7 @@ function CreateThreadPage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                placeholder=""
                 required
               />
             </div>
@@ -81,6 +80,7 @@ function CreateThreadPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                placeholder="Description"
                 required
                 rows={4}
               />
@@ -94,6 +94,7 @@ function CreateThreadPage() {
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                placeholder="Category"
                 required
               />
             </div>

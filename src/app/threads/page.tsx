@@ -6,12 +6,9 @@ import AllThreads from "@/components/AllThreads";
 const AllThreadsPage = () => {
   return (
     <main className="container mx-auto">
-      <div className="mb-20">
-        <Header />
-      </div>
-      <AllThreads />
-      <div className="p-5">
-        <div className="pt-10 mx-auto text-center">
+      <Header />
+      <div className="p-10">
+        <div className="pt-2 mx-auto text-right">
           <a
             href="/create-thread"
             className="bg-black text-white py-3 px-5 rounded-md dark:text-black dark:bg-white hover:opacity-75"
@@ -19,6 +16,7 @@ const AllThreadsPage = () => {
             Create Thread
           </a>
         </div>
+        <AllThreads />
       </div>
     </main>
   );
