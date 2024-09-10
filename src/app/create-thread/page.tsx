@@ -39,6 +39,7 @@ function CreateThreadPage() {
       tags: [category],
       creator,
       creationDate: new Date().toISOString(),
+      isLocked: false,
     };
     try {
       await addDoc(collection(db, "threads"), newThread);

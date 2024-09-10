@@ -33,3 +33,21 @@ export const editThread = async (
     description: newDescription,
   });
 };
+
+// Function to lock or unlock a thread in the database
+export const lockThread = async (
+  threadId: string | undefined,
+  isLocked: boolean
+) => {
+  if (!threadId) {
+    throw new Error("Thread ID is undefined"); // Ensure threadId is valid
+  }
+
+  // Reference the Firestore document
+  const threadDocRef = doc(db, "threads", threadId);
+
+  // Perform the update
+  await updateDoc(threadDocRef, {
+    isLocked: isLocked, // Use the passed value
+  });
+};
