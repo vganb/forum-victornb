@@ -1,5 +1,18 @@
 import { db } from "@/firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { getDoc, doc, updateDoc } from "firebase/firestore";
+
+export const toggleAnswer = async (commentId: string) => {
+  const commentRef = doc(db, "comments", commentId);
+  const commentSnap = await getDoc(commentRef);
+  if (commentSnap.exists()) {
+    const commentData = commentSnap.data();
+    await updateDoc(commentRef, {
+      isAnswer: !commentData.isAnswer,
+    });
+    return !commentData.isAnswer;
+  }
+  throw new Error("Comment not found");
+};
 
 // Function to edit a thread in the database
 export const editThread = async (

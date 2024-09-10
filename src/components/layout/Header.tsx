@@ -6,6 +6,7 @@ import { getFirestore, collection, getDocs } from "firebase/firestore";
 // import { auth, db } from "@/firebase"; // Ensure you have these exports in your firebase.js
 import { Button } from "../ui/button";
 import Image from "next/image";
+import { ModeToggle } from "../mode-toggle";
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -62,6 +63,7 @@ function Header() {
             <Link href="/threads">Threads</Link>
           </Button>
         </li>
+        <ModeToggle />
         {isLoggedIn ? (
           <>
             <li className="flex-1 text-right">

@@ -251,15 +251,22 @@ const ThreadDetailPage: React.FC = () => {
     }
     try {
       const commentRef = doc(db, "comments", commentId);
-      await updateDoc(commentRef, {
-        isAnswer: true,
-      });
+      const commentSnap = await getDoc(commentRef);
+      if (commentSnap.exists()) {
+        const commentData = commentSnap.data();
+        // Toggle the isAnswer field
+        await updateDoc(commentRef, {
+          isAnswer: !commentData.isAnswer,
+        });
 
-      setComments((prevCommentcs) =>
-        prevCommentcs.map((comment) =>
-          comment.id === commentId ? { ...comment, isAnswer: true } : comment
-        )
-      );
+        setComments((prevComments) =>
+          prevComments.map((comment) =>
+            comment.id === commentId
+              ? { ...comment, isAnswer: !commentData.isAnswer }
+              : comment
+          )
+        );
+      }
     } catch (error) {
       console.log("Error marking comment as answer:", error);
     }
