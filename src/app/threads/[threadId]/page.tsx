@@ -25,6 +25,9 @@ import { useRouter } from "next/navigation";
 import { FaCheck } from "react-icons/fa";
 import { lockThread } from "@/services/threadService";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Card, CardFooter } from "@/components/ui/card";
 
 const ThreadDetailPage: React.FC = () => {
   const pathname = usePathname();
@@ -306,34 +309,34 @@ const ThreadDetailPage: React.FC = () => {
         {thread ? (
           <div className="bg-white shadow-md rounded-lg p-6 mb-6">
             {isEditing ? (
-              <div>
-                <input
+              <Card>
+                <Input
                   type="text"
                   value={updatedTitle}
                   onChange={(e) => setUpdatedTitle(e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded text-black bg-white"
                 />
-                <textarea
+                <Textarea
                   value={updatedDescription}
                   onChange={(e) => setUpdatedDescription(e.target.value)}
                   className="w-full p-2 mt-4 border border-gray-300 rounded text-black bg-white"
                   rows={4}
                 />
-                <div className="flex justify-end mt-4">
-                  <button
+                <CardFooter className="flex justify-end mt-4">
+                  <Button
                     onClick={handleSaveEdit}
-                    className="bg-green-500 text-white p-2 px-4 rounded mr-2 hover:opacity-65"
+                    className="bg-green-700 text-white p-2 px-4 rounded mr-2 hover:opacity-65"
                   >
                     Save
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleCancelEdit}
-                    className="bg-red-500 text-white p-2 px-4 rounded hover:opacity-65"
+                    className="bg-red-600 text-white p-2 px-4 rounded hover:opacity-65"
                   >
                     Cancel
-                  </button>
-                </div>
-              </div>
+                  </Button>
+                </CardFooter>
+              </Card>
             ) : (
               <div>
                 <h1 className="text-2xl font-bold mb-4 dark:text-black">
@@ -357,20 +360,20 @@ const ThreadDetailPage: React.FC = () => {
                 </p>
                 {currentUserUID &&
                   canEditThread(thread, currentUserUID, isModerator) && (
-                    <button
+                    <Button
                       onClick={handleEditClick}
                       className="bg-blue-500 text-white p-2 px-4 rounded hover:opacity-65"
                     >
                       Edit Thread
-                    </button>
+                    </Button>
                   )}
                 {isModerator && (
-                  <button
+                  <Button
                     onClick={() => handleDeleteThread(thread.id)}
                     className="bg-red-500 text-white p-2 px-4 rounded hover:opacity-65"
                   >
                     Delete Thread
-                  </button>
+                  </Button>
                 )}
                 {isModerator && (
                   <Button onClick={() => handleLockThread(thread.id)}>
@@ -392,25 +395,25 @@ const ThreadDetailPage: React.FC = () => {
           ) : (
             isLoggedIn && (
               <form onSubmit={handleCommentSubmit} className="my-4">
-                <textarea
+                <Textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded text-black bg-white"
                   placeholder="Add a comment..."
                   required
                 />
-                <button
+                <Button
                   type="submit"
                   className="mt-2 bg-blue-500 text-white p-2 px-4 rounded hover:opacity-65"
                 >
                   Submit
-                </button>
+                </Button>
               </form>
             )
           )}
           {sortedComments.length > 0 ? (
             sortedComments.map((comment) => (
-              <div
+              <Card
                 key={comment.id}
                 className="bg-white shadow-md rounded-lg p-5 px-6 mb-6"
               >
@@ -428,12 +431,12 @@ const ThreadDetailPage: React.FC = () => {
                 </p>
                 {currentUserUID && (
                   <div>
-                    <button
+                    <Button
                       onClick={() => handleDeleteComment(comment.id)}
-                      className="bg-red-500 text-white p-2 px-4 rounded hover:opacity-65"
+                      className="bg-red-600 text-white p-2 px-4 rounded hover:opacity-65"
                     >
                       Delete Comment
-                    </button>
+                    </Button>
                     {showMessage && comment.id === commentToDelete && (
                       <p className="text-red-500 text-xs">
                         You can only delete your own comments.
@@ -441,12 +444,12 @@ const ThreadDetailPage: React.FC = () => {
                     )}
                     {thread?.creator === currentUserUID &&
                       !comment.isAnswer && (
-                        <button
+                        <Button
                           onClick={() => handleMarkAsAnswer(comment.id)}
-                          className="bg-green-500 text-white p-2 px-4 rounded ml-2 hover:opacity-65"
+                          className="bg-green-700 text-white p-2 px-4 rounded ml-2 hover:opacity-65"
                         >
                           Mark as Answer
-                        </button>
+                        </Button>
                       )}
                     {comment.isAnswer && (
                       <div className="flex text-green-500">
@@ -458,7 +461,7 @@ const ThreadDetailPage: React.FC = () => {
                     )}
                   </div>
                 )}
-              </div>
+              </Card>
             ))
           ) : !thread?.isLocked ? (
             <p>No comments yet.</p>
